@@ -8,6 +8,7 @@ const app = express()
 app.use(bodyParser.json())
 app.use(cors())
 
+/*
 let notes = [
   {
     id: 1,
@@ -43,8 +44,8 @@ const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
+*/
 
-/*
 // Replace the following with values for your environment.
 const username = encodeURIComponent("dbSafty");
 const password = encodeURIComponent("atZf9dgE6aBX3uxu");
@@ -83,10 +84,11 @@ app.get('/',(req,res)=>{
 })
 })
 
-app.listen(3000,()=>{
-  console.log("server running")
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
 })
-
+/*
 const client = new MongoClient(uri);
 
 async function run() {
