@@ -1,0 +1,5 @@
+node_modules/
+utils/config.js
+
+# macOS
+.DS_Store
