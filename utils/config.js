@@ -7,4 +7,6 @@ authMechanism = 'DEFAULT';
 //URI is as following
 const uri =  `mongodb+srv://${username}:${password}@${clusterUrl}/?authMechanism=${authMechanism}`;
 
-module.exports = uri
+const PORT = 3001;
+
+module.exports = { uri , PORT }
