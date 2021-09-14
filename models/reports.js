@@ -7,6 +7,11 @@ const ReportSchema = new mongoose.Schema({
     date:Date,
     isFinished:String,
     desc:String,
+    imgUrl:String,
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
 })
 
 ReportSchema.set('toJSON', {

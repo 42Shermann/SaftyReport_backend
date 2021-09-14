@@ -1,27 +1,62 @@
 const reportsRouter = require('express').Router()
 const Report = require('../models/reports')
+const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+const multer = require('multer')
+const config = require('../utils/config')
 
-reportsRouter.get('/', (request, response) => {
-    Report.find({}).then(reports => {
-        response.json(reports.map(report => report.toJSON()))
-      })
+const getTokenFrom = request => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+    return authorization.substring(7)
+  }
+  return null
+}
+
+const storage = multer.diskStorage({
+  destination(req, file, callback) {
+    callback(null, './images');
+  },
+  filename(req, file, callback) {
+    callback(null, `${file.fieldname}_${Date.now()}_${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage });
+
+reportsRouter.get('/', async (request, response) => {
+  const reports = await Report
+    .find({}).populate('user', { username: 1, name: 1 })
+
+  response.json(reports)
 })
 
-reportsRouter.get('/:id', (request, response, next) => {
-    Report.findById(request.params.id)
+reportsRouter.get('/user', async (request, response, next) => {
+try{
+  const token = getTokenFrom(request)
+  const decodedToken = jwt.verify(token, config.SECRET)
+  if (!token || !decodedToken.id) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+  const user = await User.findById(decodedToken.id)
+
+    Report.find({user: user})
     .then(report => {
       if (report) {
-        response.json(report.toJSON())
+        response.json(report)
       } else {
         response.status(404).end()
       }
     })
     .catch(error => next(error))
-})
+}catch(error) {
+  next(error)
+}})
 
-reportsRouter.get('/user', (request, response, next) => {
+reportsRouter.get('/test', (request, response, next) => {
   const user = request.params.user
-  Report.find(report => report.user === user)
+  const query = Report.find({user: user});
+  query.getFilter()
   .then(report => {
     if (report) {
       response.json(report.toJSON())
@@ -32,23 +67,46 @@ reportsRouter.get('/user', (request, response, next) => {
   .catch(error => next(error))
 })
 
-reportsRouter.post('/', (request, response, next) => {
-  const body = request.body
+reportsRouter.post('/', async (request, response, next) => {
+  try {
+    const body = request.body
+    const token = getTokenFrom(request)
+    const decodedToken = jwt.verify(token, config.SECRET)
+    if (!token || !decodedToken.id) {
+      return response.status(401).json({ error: 'token missing or invalid' })
+    }
+    const user = await User.findById(decodedToken.id)
 
   const report = new Report({
-    title: body.content,
+    title: body.title,
     content: body.content,
     date: new Date(),
-    isFinished: body.isFinished,
-    desc: body.desc
+    isFinished: 'Not Finished',
+    desc: body.desc,
+    user: user._id,
+    imgUrl:body.url
   })
 
-  report.save()
-    .then(savedReport => {
-      response.json(savedReport.toJSON())
-    })
-    .catch(error => next(error))
+  const savedReport = await report.save()
+  user.reports = user.reports.concat(savedReport._id)
+  await user.save()
+  
+  response
+  .status(200)
+  .json(savedReport)
+
+} catch(error) {
+  next(error)
+}
 })
+
+reportsRouter.post('/upload', upload.array('photo', 3), (req, res) => {
+  console.log('file', req.files);
+  console.log('body', req.body);
+  res.status(200).json({
+    message: 'success!',
+  });
+});
 
 reportsRouter.delete('/:id', (request, response, next) => {
     Report.findByIdAndRemove(request.params.id)
