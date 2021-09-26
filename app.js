@@ -2,14 +2,18 @@ const config = require('./utils/config')
 const express = require('express')
 const app = express()
 const cors = require('cors')
+const dotenv = require('dotenv');
 const reportsRouter = require('./controller/reports')
 const usersRouter = require('./controller/users')
 const loginRouter = require('./controller/login')
+const authRouter = require('./routes/auth')
+const pingRouter = require('./controller/ping')
 const middleware = require('./utils/middleware')
 const logger = require('./utils/logger')
 const mongoose = require('mongoose')
 
 logger.info('connecting to', config.uri)
+dotenv.config({path: 'config.env'})
 
 mongoose.connect(config.uri, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
   .then(() => {
@@ -27,6 +31,8 @@ app.use(middleware.requestLogger)
 app.use('/api/report', reportsRouter)
 app.use('/api/user', usersRouter)
 app.use('/api/login', loginRouter)
+app.use('/api/auth', authRouter)
+app.use('/api/ping', pingRouter)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)

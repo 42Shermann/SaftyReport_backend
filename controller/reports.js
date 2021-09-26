@@ -1,6 +1,6 @@
 const reportsRouter = require('express').Router()
 const Report = require('../models/reports')
-const User = require('../models/user')
+const User = require('../models/user2')
 const jwt = require('jsonwebtoken')
 const multer = require('multer')
 const config = require('../utils/config')
@@ -34,7 +34,7 @@ reportsRouter.get('/', async (request, response) => {
 reportsRouter.get('/user', async (request, response, next) => {
 try{
   const token = getTokenFrom(request)
-  const decodedToken = jwt.verify(token, config.SECRET)
+  const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
   if (!token || !decodedToken.id) {
     return response.status(401).json({ error: 'token missing or invalid' })
   }
@@ -71,7 +71,7 @@ reportsRouter.post('/', async (request, response, next) => {
   try {
     const body = request.body
     const token = getTokenFrom(request)
-    const decodedToken = jwt.verify(token, config.SECRET)
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
     if (!token || !decodedToken.id) {
       return response.status(401).json({ error: 'token missing or invalid' })
     }
