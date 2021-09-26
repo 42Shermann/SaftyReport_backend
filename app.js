@@ -12,10 +12,11 @@ const middleware = require('./utils/middleware')
 const logger = require('./utils/logger')
 const mongoose = require('mongoose')
 
-logger.info('connecting to', config.uri)
 dotenv.config({path: 'config.env'})
 
 const uri =  `mongodb+srv://${process.env.username}:${process.env.password}@${process.env.clusterUrl}/?authMechanism=${process.env.authMechanism}`;
+
+logger.info('connecting to', uri)
 
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
   .then(() => {
