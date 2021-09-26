@@ -3,7 +3,7 @@ const pingRouter = require('express').Router()
 pingRouter.get('/', async (request, response) => {
     try{
 
-        response.status(200).send('Acknowledge');  
+        response.status(200).json({ message: "Acknowledged" });  
     
     }
     catch{
