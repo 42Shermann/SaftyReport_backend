@@ -15,7 +15,9 @@ const mongoose = require('mongoose')
 logger.info('connecting to', config.uri)
 dotenv.config({path: 'config.env'})
 
-mongoose.connect(config.uri, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
+const uri =  `mongodb+srv://${process.env.username}:${process.env.password}@${process.env.clusterUrl}/?authMechanism=${process.env.authMechanism}`;
+
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
   .then(() => {
     logger.info('connected to MongoDB')
   })

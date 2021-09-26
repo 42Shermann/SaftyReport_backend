@@ -3,7 +3,6 @@ const Report = require('../models/reports')
 const User = require('../models/user2')
 const jwt = require('jsonwebtoken')
 const multer = require('multer')
-const config = require('../utils/config')
 
 const getTokenFrom = request => {
   const authorization = request.get('authorization')
