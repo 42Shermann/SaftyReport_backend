@@ -12,7 +12,7 @@ const mongoose = require('mongoose')
 
 dotenv.config({path: 'config.env'})
 
-const uri =  `mongodb+srv://${process.env.username}:${process.env.password}@${process.env.clusterUrl}/?authMechanism=${process.env.authMechanism}`;
+const uri =  `mongodb+srv://${process.env.mongoDBname}:${process.env.password}@${process.env.clusterUrl}/?authMechanism=${process.env.authMechanism}`;
 
 logger.info('connecting to', uri)
 
