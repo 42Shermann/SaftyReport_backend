@@ -2,7 +2,17 @@ const reportsRouter = require('express').Router()
 const Report = require('../models/reports')
 const User = require('../models/user2')
 const jwt = require('jsonwebtoken')
-const multer = require('multer')
+const cloudinary = require('cloudinary').v2;
+const dotenv = require('dotenv');
+
+dotenv.config({path: 'config.env'})
+
+cloudinary.config({ 
+  cloud_name: process.env.cloud_name, 
+  api_key: process.env.api_key, 
+  api_secret: process.env.api_secret,
+  secure: true
+});
 
 const getTokenFrom = request => {
   const authorization = request.get('authorization')
@@ -11,17 +21,6 @@ const getTokenFrom = request => {
   }
   return null
 }
-
-const storage = multer.diskStorage({
-  destination(req, file, callback) {
-    callback(null, './images');
-  },
-  filename(req, file, callback) {
-    callback(null, `${file.fieldname}_${Date.now()}_${file.originalname}`);
-  },
-});
-
-const upload = multer({ storage });
 
 reportsRouter.get('/', async (request, response) => {
   const reports = await Report
@@ -99,16 +98,12 @@ reportsRouter.post('/', async (request, response, next) => {
 }
 })
 
-reportsRouter.post('/upload', upload.array('photo', 3), (req, res) => {
-  console.log('file', req.files);
-  console.log('body', req.body);
-  res.status(200).json({
-    message: 'success!',
-  });
-});
-
 reportsRouter.delete('/:id', (request, response, next) => {
-    Report.findByIdAndRemove(request.params.id)
+
+  cloudinary.uploader.destroy(request.body.uri, function(error,result) {
+  console.log(result, error) })
+  
+  Report.findByIdAndRemove(request.params.id)
     .then(() => {
       response.status(204).end()
     })
