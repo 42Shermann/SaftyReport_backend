@@ -38,6 +38,7 @@ const schema = new mongoose.Schema(
             minlength: 8,
             select: false,
           },
+          admin:Boolean,
           resetPasswordToken: String,
           resetPasswordExpire: Date,
           reports: [ 
@@ -68,6 +69,6 @@ schema.methods.getSignedToken = function() {
   return jwt.sign({id: this._id}, process.env.JWT_SECRET);
 }
 
-const Userdb = mongoose.model('userdb', schema);
+const Userdb = mongoose.model('User', schema);
 
 module.exports = Userdb;

@@ -23,10 +23,19 @@ const getTokenFrom = request => {
 }
 
 reportsRouter.get('/', async (request, response) => {
-  const reports = await Report
-    .find({}).populate('user', { username: 1, name: 1 })
-
-  response.json(reports)
+  const reports = await Report.find({}).populate('user');
+  const AllTask = await Report.countDocuments({});
+  const completed = await Report.countDocuments({isFinished:"Done"});
+  const incompleted = await Report.countDocuments({isFinished:"Not Finished"});
+  const inProgress = await Report.countDocuments({isFinished:"Going"});
+  response.send({
+    reports, 
+    AllTask,
+    completed,
+    incompleted,
+    inProgress
+}).json();
+  response.end();
 })
 
 reportsRouter.get('/user', async (request, response, next) => {

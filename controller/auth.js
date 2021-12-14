@@ -1,4 +1,5 @@
 const User = require('../models/user2');
+const Report = require('../models/reports')
 const jwt = require('jsonwebtoken')
 const ErrorResponse = require('../utils/errorResponse');
 
@@ -36,12 +37,12 @@ exports.register = async (req,res,next) => {
 
         else{
         const user = await User.create({
-           name,
+            name,
             username,
             position, 
-           email, 
-           phone,
-           password
+            email, 
+            phone,
+            password
         });
         sendToken(user, 201, res);
         }
@@ -109,6 +110,41 @@ try{
     next(err);
 }
 };
+
+exports.updateUser = async (req, res, next) => {
+    try{
+        const token = getTokenFrom(req)
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
+        if (!token || !decodedToken.id) {
+            return res.status(401).json({ error: 'token missing or invalid' })
+        }
+        const body = req.body
+
+        const updatedField = {
+            name: body.name,
+            position: body.position,
+            email: body.email,
+        }
+        const user = await User.findOneAndUpdate(decodedToken.id, updatedField, {new:true})
+
+        sendToken(user, 200, res);
+    
+    }catch(err){
+        next(err);
+    }
+    };
+
+exports.getAllUsers = async (req, res, next) =>{
+    try{
+        const allUsers = await User
+        .find({}).populate('Report')
+    
+        res.json(allUsers)
+    }
+    catch(e){
+        next(e)
+    }
+}
 
 exports.forgotpassword = (req,res,next) => {
     res.send("forgot password  Route");
