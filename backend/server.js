@@ -4,59 +4,13 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors')
 
+const config = require('./utils/config')
+
 const app = express()
 app.use(bodyParser.json())
 app.use(cors())
 
-/*
-let notes = [
-  {
-    id: 1,
-    content: "HTML is easy",
-    date: "2019-05-30T17:30:31.098Z",
-    important: true
-  },
-  {
-    id: 2,
-    content: "Browser can execute only Javascript",
-    date: "2019-05-30T18:39:34.091Z",
-    important: false
-  },
-  {
-    id: 3,
-    content: "GET and POST are the most important methods of HTTP protocol",
-    date: "2019-05-30T19:20:14.298Z",
-    important: true
-  }
-]
-
-app.get('/', (request, response) => {
-  response.send('<h1>Hello World!</h1>')
-})
-
-app.get('/api/notes/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const note = notes.find(note => note.id === id)
-  response.json(note)
-})
-
-const PORT = process.env.PORT || 3001
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
-*/
-
-// Replace the following with values for your environment.
-const username = encodeURIComponent("dbSafty");
-const password = encodeURIComponent("atZf9dgE6aBX3uxu");
-const clusterUrl = "cluster0.t42yh.mongodb.net/saftyRep_db?retryWrites=true&w=majority";
-const authMechanism = "DEFAULT";
-// Replace the following with your MongoDB deployment's connection string.
-const uri =
-  `mongodb+srv://${username}:${password}@${clusterUrl}/?authMechanism=${authMechanism}`; 
-
-
-mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true});  
+mongoose.connect(config.uri, {useNewUrlParser: true, useUnifiedTopology: true});  
 
 //Get the default connection
 var db = mongoose.connection;
@@ -67,17 +21,31 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 var Schema = mongoose.Schema;
 
 const ReportSchema = new Schema({
+
   title:String,
   content:String,
   date:Date,
   isFinished:String,
-  desc:String
+  desc:String,
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
+
 })
 
 var Reports = mongoose.model('reports',ReportSchema)
 
-app.get('/',(req,res)=>{
+app.get('/reports',(req,res)=>{
   Reports.find({}).then(data=>{
+    res.send(data)
+}).catch(err=>{
+    console.log(err)
+})
+})
+
+app.get('/reports/user',(req,res)=>{
+  Reports.find({ user: 'johnson112' }).then(data=>{
     res.send(data)
 }).catch(err=>{
     console.log(err)
@@ -88,6 +56,8 @@ const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
+
+
 /*
 const client = new MongoClient(uri);
 
